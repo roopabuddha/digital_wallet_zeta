@@ -1,26 +1,37 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" class="app-container">
+    <!-- Animated route transitions -->
+    <transition name="page-fade" mode="out-in">
+      <router-view />
+    </transition>
+  </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+<script setup>
+// No script needed — purely structural
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@import "@/assets/styles/global.css";
+@import "@/assets/styles/theme.css";
+@import "@/assets/styles/animations.css";
+
+.app-container {
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Route transitions */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>

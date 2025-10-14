@@ -1,0 +1,108 @@
+/* 🌈 Global Wallet Theme */
+
+:root {
+  --primary: #4f46e5;
+  --secondary: #06b6d4;
+  --danger: #ef4444;
+  --light-bg: #f8fafc;
+  --text-dark: #1e293b;
+  --text-light: #64748b;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --border-color: #e2e8f0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--light-bg), #e2e8f0);
+  color: var(--text-dark);
+}
+
+/* Generic Page Container */
+.page-container {
+  padding: 40px 60px;
+  min-height: 100vh;
+}
+
+/* Buttons */
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  color: #fff;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, var(--danger), #b91c1c);
+  color: #fff;
+}
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Header Bar */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.header-title {
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 28px;
+}
+
+.header-subtitle {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* Frosted Card Style */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+/* Table Theme */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th {
+  background: #f1f5f9;
+  color: #475569;
+  text-transform: uppercase;
+  font-size: 13px;
+  padding: 14px;
+  text-align: left;
+}
+.table td {
+  padding: 14px;
+  border-top: 1px solid var(--border-color);
+}
+tr:nth-child(even) {
+  background: #f9fafb;
+}
+tr:hover {
+  background: #eef2ff;
+}

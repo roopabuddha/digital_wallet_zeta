@@ -1,0 +1,70 @@
+/*
+|--------------------------------------------------------------------------
+| Design Variables (CSS Tokens)
+| Used across theme.css and global styles
+|--------------------------------------------------------------------------
+*/
+
+:root {
+  /* 🎨 Color Palette */
+  --color-bg-dark: #0f172a;
+  --color-bg-darker: #071033;
+  --color-text-light: #e6eef8;
+  --color-text-muted: rgba(255, 255, 255, 0.6);
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  /* 🌈 Accent Colors */
+  --color-primary: #4f46e5;
+  --color-secondary: #06b6d4;
+  --color-success: #22c55e;
+  --color-warning: #facc15;
+  --color-danger: #ef4444;
+
+  /* 💫 Gradients */
+  --gradient-primary: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+  --gradient-bg: linear-gradient(180deg, var(--color-bg-dark) 0%, var(--color-bg-darker) 80%);
+
+  /* 🖋️ Typography */
+  --font-family-base: 'Inter', system-ui, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* 📏 Spacing Scale (px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* 🧱 Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* 🌤️ Shadows */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.35);
+
+  /* 🔄 Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-medium: 0.35s ease;
+  --transition-slow: 0.5s ease;
+
+  /* 💾 Z-index Levels */
+  --z-header: 100;
+  --z-modal: 200;
+  --z-tooltip: 300;
+}

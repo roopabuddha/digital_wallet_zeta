@@ -1,0 +1,60 @@
+/* Reset & Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-light);
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.4);
+  border-radius: 4px;
+}
+
+/* Typography defaults */
+h1, h2, h3, h4, h5 {
+  font-weight: 600;
+}
+p, label, span {
+  font-weight: 400;
+}
+
+/* Buttons & Inputs default style */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Universal hover glow */
+button:hover {
+  filter: brightness(1.08);
+}
+
+/* Utility classes */
+.text-center {
+  text-align: center;
+}
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.rounded { border-radius: 10px; }
+
+/* Card base styling */
+.card {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+}
