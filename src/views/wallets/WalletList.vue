@@ -1,68 +1,48 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="wallet-list-page">
-    <!-- HEADER -->
-    <header class="header">
-      <div class="left">
-        <h2>🏦 Wallet Management</h2>
-        <p v-if="role === 'ADMIN'">
-          View, create, and manage all wallets
-        </p>
-        <p v-else>
-          View all customer wallets and balances
-        </p>
-      </div>
-
+  <div class="wallet-page">
+    <!-- Header -->
+    <header class="wallet-header">
+      <h2 class="title">Wallet Management</h2>
       <div class="actions">
-        <button
-          v-if="role === 'ADMIN'"
-          class="add-btn"
-          @click="goToCreate"
-        >
-          ➕ Add Wallet
-        </button>
-        <button class="back-btn" @click="goBack">← Back</button>
+        <button v-if="role === 'ADMIN'" class="btn add" @click="goToAddWallet">➕ Add Wallet</button>
+        <button class="btn back" @click="goBack">← Back</button>
       </div>
     </header>
 
-    <!-- TABLE -->
-    <div class="table-container">
-      <table class="wallet-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>User</th>
-            <th>Email</th>
-            <th>Balance</th>
-            <th>Currency</th>
-            <th v-if="role === 'ADMIN'">Actions</th>
-            <th v-else>Details</th>
-          </tr>
-        </thead>
+    <!-- Wallets Table -->
+    <transition name="fade-slide" appear>
+      <div v-if="wallets.length" class="wallet-card">
+        <table class="wallet-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Email</th>
+              <th>Balance</th>
+              <th>Currency</th>
+              <th v-if="role === 'ADMIN'">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(wallet, index) in wallets" :key="wallet.id">
+              <td>{{ index + 1 }}</td>
+              <td>{{ wallet.user }}</td>
+              <td>{{ wallet.email }}</td>
+              <td>{{ formatCurrency(wallet.balance) }}</td>
+              <td>{{ wallet.currency }}</td>
+              <td v-if="role === 'ADMIN'" class="action-cell">
+                <button class="edit" @click="editWallet(wallet.id)">Edit</button>
+                <button class="delete" @click="deleteWallet(wallet.id)">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </transition>
 
-        <tbody>
-          <tr v-for="(wallet, i) in wallets" :key="wallet.id">
-            <td>{{ i + 1 }}</td>
-            <td>{{ wallet.user }}</td>
-            <td>{{ wallet.email }}</td>
-            <td>{{ formatCurrency(wallet.balance, wallet.currency) }}</td>
-            <td>{{ wallet.currency }}</td>
-
-            <!-- For Admin -->
-            <td v-if="role === 'ADMIN'">
-              <button class="edit-btn" @click="editWallet(wallet.id)">Edit</button>
-              <button class="delete-btn" @click="deleteWallet(wallet.id, wallet.user)">Delete</button>
-            </td>
-
-            <!-- For Finance Manager -->
-            <td v-else>
-              <button class="view-btn" @click="viewWallet(wallet.id)">View</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <p v-if="!wallets.length" class="empty-state">No wallets found 💸</p>
-    </div>
+    <!-- Empty State -->
+   <p v-if="!wallets.length" class="empty-state">No wallets found 💸</p>
   </div>
 </template>
 
@@ -72,58 +52,67 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const wallets = ref([])
-const role = ref('')
+const role = localStorage.getItem('auth_role') || ''
 
 onMounted(() => {
-  role.value = localStorage.getItem('auth_role')
-
-  if (role.value !== 'ADMIN' && role.value !== 'FINANCE_MANAGER') {
-    alert('Access denied ❌')
+  // ✅ Role-based access check
+  if (role !== 'ADMIN' && role !== 'FINANCE_MANAGER') {
+    alert('Access denied')
     router.push({ name: 'Login' })
     return
   }
 
-  const stored = JSON.parse(localStorage.getItem('wallets') || '[]')
-  wallets.value = stored
+  const storedWallets = JSON.parse(localStorage.getItem('wallets') || '[]')
+
+  if (storedWallets.length === 0) {
+    wallets.value = [
+      { id: 1, user: 'Anjali Singh', email: 'anjali@mail.com', balance: 1200, currency: 'INR' },
+      { id: 2, user: 'Rohit Mehta', email: 'rohit@mail.com', balance: 2500, currency: 'INR' },
+      { id: 3, user: 'Kiran Rao', email: 'kiran@mail.com', balance: 1800, currency: 'INR' }
+    ]
+    localStorage.setItem('wallets', JSON.stringify(wallets.value))
+  } else {
+    wallets.value = storedWallets
+  }
 })
 
-function goToCreate() {
-  router.push({ name: 'WalletNew' })
+// ✅ Format currency nicely
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR'
+  }).format(amount)
 }
 
-function editWallet(id) {
-  router.push({ name: 'WalletNew', query: { editId: id } })
-}
-
-function deleteWallet(id, user) {
-  if (confirm(`Are you sure you want to delete ${user}'s wallet?`)) {
-    wallets.value = wallets.value.filter((w) => w.id !== id)
-    localStorage.setItem('wallets', JSON.stringify(wallets.value))
-  }
-}
-
-function viewWallet(id) {
-  router.push({ name: 'WalletDetail', params: { id } })
+// ✅ Navigation actions
+function goToAddWallet() {
+  router.push({ name: 'WalletForm' })
 }
 
 function goBack() {
-  const role = localStorage.getItem('auth_role')
-  if (role === 'ADMIN') router.push({ name: 'AdminUsers' })
-  else router.push({ name: 'PaymentDashboard' })
+  if (role === 'FINANCE_MANAGER') {
+    router.push({ name: 'PaymentDashboard' })
+  } else {
+    router.push({ name: 'AdminDashboard' })
+  }
 }
 
+// ✅ Admin-only functions
+function editWallet(id) {
+  router.push({ name: 'WalletForm', query: { editId: id } })
+}
 
-
-function formatCurrency(amount, currency) {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: currency || 'INR'
-  }).format(amount)
+function deleteWallet(id) {
+  if (confirm('Are you sure you want to delete this wallet?')) {
+    const updated = wallets.value.filter((w) => w.id !== id)
+    wallets.value = updated
+    localStorage.setItem('wallets', JSON.stringify(updated))
+  }
 }
 </script>
 
 <style scoped>
-.wallet-list-page {
+.wallet-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc, #e2e8f0);
   color: #1e293b;
@@ -132,125 +121,137 @@ function formatCurrency(amount, currency) {
 }
 
 /* HEADER */
-.header {
+.wallet-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 30px;
   flex-wrap: wrap;
 }
-.left h2 {
+.title {
   font-size: 26px;
   background: linear-gradient(90deg, #4f46e5, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-.left p {
-  color: #64748b;
-  font-size: 14px;
+  margin: 0;
 }
 .actions {
   display: flex;
   gap: 10px;
 }
-.add-btn {
-  background: linear-gradient(90deg, #06b6d4, #4f46e5);
-  color: white;
+.btn {
   border: none;
-  padding: 10px 18px;
   border-radius: 10px;
+  padding: 10px 16px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
 }
-.back-btn {
-  background: linear-gradient(90deg, #ef4444, #b91c1c);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+.add {
+  background: linear-gradient(90deg, #06b6d4, #67e8f9);
+  color: #0f172a;
+}
+.back {
+  background: linear-gradient(90deg, #4f46e5, #818cf8);
+  color: #fff;
+}
+.btn:hover {
+  transform: translateY(-2px);
 }
 
 /* TABLE */
-.table-container {
-  background: #ffffffcc;
-  border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+.wallet-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease;
 }
 .wallet-table {
   width: 100%;
   border-collapse: collapse;
 }
 .wallet-table th {
+  text-align: left;
+  padding: 12px;
   background: #f1f5f9;
   color: #475569;
-  text-transform: uppercase;
   font-size: 13px;
-  padding: 14px;
-  text-align: left;
+  text-transform: uppercase;
 }
 .wallet-table td {
-  padding: 14px;
-  font-size: 14px;
+  padding: 12px;
   border-top: 1px solid #e2e8f0;
+  font-size: 14px;
 }
-tr:nth-child(even) {
+.wallet-table tr:nth-child(even) {
   background: #f9fafb;
 }
-tr:hover {
+.wallet-table tr:hover {
   background: #eef2ff;
 }
 
 /* ACTION BUTTONS */
-.edit-btn,
-.delete-btn,
-.view-btn {
+.action-cell button {
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-right: 6px;
   font-size: 13px;
   cursor: pointer;
-  font-weight: 500;
+  transition: 0.2s;
 }
-.edit-btn {
-  background: #4f46e5;
+.action-cell .edit {
+  background: #22c55e;
   color: white;
 }
-.edit-btn:hover {
-  background: #4338ca;
-}
-.delete-btn {
+.action-cell .delete {
   background: #ef4444;
   color: white;
 }
-.delete-btn:hover {
-  background: #dc2626;
-}
-.view-btn {
-  background: linear-gradient(90deg, #4f46e5, #06b6d4);
-  color: white;
-}
-.view-btn:hover {
+.action-cell button:hover {
   transform: translateY(-2px);
 }
 
 /* EMPTY STATE */
 .empty-state {
   text-align: center;
-  padding: 24px;
-  font-size: 14px;
-  color: #94a3b8;
+  color: #64748b;
+  font-size: 15px;
+  margin-top: 40px;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-slide-enter-active {
+  transition: all 0.6s ease;
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(15px);
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-  .wallet-list-page {
+  .wallet-page {
     padding: 20px;
   }
-  .wallet-table th,
-  .wallet-table td {
+  .wallet-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .wallet-card {
     padding: 10px;
   }
 }

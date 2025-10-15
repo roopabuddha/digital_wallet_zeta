@@ -1,35 +1,30 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="auth-page">
-    <!-- Background Gradient -->
     <div class="background-layer"></div>
 
-    <!-- Left Illustration Section -->
+    <!-- Left Illustration -->
     <div class="illustration">
-      <div class="wallet-graphic">
-        <div class="wallet">
-          <div class="flap"></div>
-          <div class="money"></div>
-        </div>
+      <div class="wallet">
+        <div class="flap"></div>
+        <div class="money"></div>
       </div>
       <div class="tagline">
-        <h1>Seamless Transactions,</h1>
+        <h1>Seamless Transactions</h1>
         <h2>Smarter Wallet Experience ⚡</h2>
         <p>Pay • Save • Manage — all in one secure place.</p>
       </div>
     </div>
 
-    <!-- Right Login Card -->
-    <transition name="fade-slide" appear>
-      <div class="card" :key="isSignUp ? 'signup' : 'login'">
-        <header>
-          <h1>Zeta's Digital Wallet</h1>
-          <p class="subtitle">
-            Secure • Smart • Fast Payments
-          </p>
-        </header>
+    <!-- Right Form Card -->
+    <div class="card">
+      <header>
+        <h1>Zeta's Digital Wallet</h1>
+        <p class="subtitle">Secure • Smart • Fast Payments</p>
+      </header>
 
-        <form class="form" @submit.prevent="handleSubmit">
+      <transition name="fade">
+        <form key="form" class="form" @submit.prevent="handleSubmit">
           <div class="input-group">
             <input v-model="email" type="email" required />
             <label>Email</label>
@@ -45,7 +40,7 @@
             />
             <label>Password</label>
             <button type="button" class="toggle" @click="showPassword = !showPassword">
-              {{ showPassword ? '🙈' : '👁️' }}
+              {{ showPassword ? 'close' : 'show' }}
             </button>
           </div>
 
@@ -74,6 +69,7 @@
           </div>
 
           <p v-if="error" class="error">{{ error }}</p>
+          <p v-if="success" class="success">{{ success }}</p>
 
           <button class="btn" :disabled="loading">
             <span v-if="!loading">{{ isSignUp ? 'Sign Up' : 'Sign In' }}</span>
@@ -91,8 +87,8 @@
             </span>
           </p>
         </form>
-      </div>
-    </transition>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -108,6 +104,7 @@ const role = ref('CUSTOMER')
 const loading = ref(false)
 const isSignUp = ref(false)
 const error = ref('')
+const success = ref('')
 const showPassword = ref(false)
 const strength = ref({ level: '', label: '' })
 
@@ -122,6 +119,7 @@ function toggleMode() {
   email.value = ''
   password.value = ''
   error.value = ''
+  success.value = ''
   showPassword.value = false
   strength.value = { level: '', label: '' }
 }
@@ -138,6 +136,7 @@ function checkStrength() {
 
 function handleSubmit() {
   error.value = ''
+  success.value = ''
   if (!isValidEmail(email.value)) {
     error.value = 'Enter a valid email address.'
     return
@@ -151,6 +150,7 @@ function handleSubmit() {
   setTimeout(() => {
     const users = JSON.parse(localStorage.getItem('demoUsers') || '[]')
 
+    // SIGN UP FLOW
     if (isSignUp.value) {
       const exists = users.find(u => u.email === email.value)
       if (exists) {
@@ -163,6 +163,7 @@ function handleSubmit() {
       users.push(newUser)
       localStorage.setItem('demoUsers', JSON.stringify(users))
 
+      // Create wallet
       const wallets = JSON.parse(localStorage.getItem('wallets') || '[]')
       wallets.push({
         id: wallets.length + 1,
@@ -172,11 +173,16 @@ function handleSubmit() {
       })
       localStorage.setItem('wallets', JSON.stringify(wallets))
 
-      router.push({ name: 'MyWallet' })
+      success.value = 'Account created successfully! Please log in to continue.'
+      isSignUp.value = false
+      email.value = ''
+      password.value = ''
+      strength.value = { level: '', label: '' }
       loading.value = false
       return
     }
 
+    // LOGIN FLOW
     const user = users.find(u => u.email === email.value && u.role === role.value)
     if (!user) {
       error.value = 'User not found.'
@@ -201,30 +207,25 @@ function handleSubmit() {
   }, 800)
 }
 
-// ✅ Ensure sample demo users exist in localStorage
+// Ensure default users exist
 function ensureDefaultUsers() {
   const existing = JSON.parse(localStorage.getItem('demoUsers') || '[]')
-
   const defaults = [
     { email: 'admin@wallet.com', password: 'Admin123', role: 'ADMIN' },
     { email: 'finance@wallet.com', password: 'Finance123', role: 'FINANCE_MANAGER' },
     { email: 'customer@wallet.com', password: 'Customer123', role: 'CUSTOMER' }
   ]
 
-  // Add only if not present
-  defaults.forEach((def) => {
-    if (!existing.some((u) => u.email === def.email)) {
+  defaults.forEach(def => {
+    if (!existing.some(u => u.email === def.email)) {
       existing.push(def)
     }
   })
-
   localStorage.setItem('demoUsers', JSON.stringify(existing))
 }
-
-// Run once when component mounts
 ensureDefaultUsers()
-
 </script>
+
 <style scoped>
 .auth-page {
   display: flex;
@@ -233,13 +234,12 @@ ensureDefaultUsers()
   color: #e2e8f0;
   font-family: "Inter", sans-serif;
   overflow: hidden;
-  position: relative;
   justify-content: center;
   align-items: center;
   padding: 40px 80px;
 }
 
-/* Background lighting */
+/* Background glow */
 .background-layer {
   position: absolute;
   inset: 0;
@@ -249,7 +249,7 @@ ensureDefaultUsers()
   animation: pulse 8s ease-in-out infinite alternate;
 }
 
-/* Left section */
+/* Left illustration */
 .illustration {
   flex: 1.1;
   display: flex;
@@ -305,7 +305,7 @@ ensureDefaultUsers()
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Card (Login / Signup Box) */
+/* Card */
 .card {
   flex: 0.9;
   max-width: 500px;
@@ -315,11 +315,7 @@ ensureDefaultUsers()
   padding: 60px 50px 70px;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.55);
   z-index: 2;
-  animation: fadeIn 0.6s ease;
-  margin-left: auto;
-  margin-right: auto;
 }
-
 header h1 {
   color: #fff;
   font-size: 28px;
@@ -332,7 +328,7 @@ header h1 {
   margin-bottom: 38px;
 }
 
-/* Input Groups */
+/* Input group */
 .input-group {
   position: relative;
   margin-bottom: 30px;
@@ -341,11 +337,16 @@ header h1 {
   width: 100%;
   padding: 16px 14px;
   border-radius: 14px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.12); /* ✅ visible background */
   border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
+  color: #fff; /* ✅ visible text */
   font-size: 15px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  outline: none;
+}
+.input-group input:focus {
+  border-color: #38bdf8;
+  background: rgba(255, 255, 255, 0.2);
 }
 .input-group label {
   position: absolute;
@@ -353,7 +354,8 @@ header h1 {
   top: 16px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
-  transition: 0.2s;
+  transition: 0.2s ease;
+  pointer-events: none;
 }
 .input-group input:focus + label,
 .input-group input:valid + label {
@@ -361,6 +363,9 @@ header h1 {
   left: 12px;
   font-size: 12px;
   color: #06b6d4;
+  background: rgba(15, 23, 42, 0.9);
+  padding: 0 4px;
+  border-radius: 4px;
 }
 .password .toggle {
   position: absolute;
@@ -411,19 +416,27 @@ header h1 {
   font-size: 15px;
   margin-top: 14px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 .btn:hover {
   transform: translateY(-3px);
 }
 
-/* Errors & Links */
+/* Errors & Success */
 .error {
   color: #ef4444;
   font-size: 14px;
   text-align: center;
   margin-top: 10px;
 }
+.success {
+  color: #22c55e;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Switch link */
 .switch {
   text-align: center;
   font-size: 13px;
